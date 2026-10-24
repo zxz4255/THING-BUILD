@@ -65,7 +65,6 @@ import net.ccbluex.liquidbounce.utils.math.sq
 import net.ccbluex.liquidbounce.utils.raytracing.findEntityInCrosshair
 import net.ccbluex.liquidbounce.utils.raytracing.hasLineOfSight
 import net.ccbluex.liquidbounce.utils.raytracing.traceFromPlayer
-import net.minecraft.client.renderer.ItemInHandRenderer
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket
 import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket
 import net.minecraft.network.protocol.game.ServerboundUseItemPacket
@@ -209,7 +208,10 @@ object KillAuraAutoBlock : ToggleableValueGroup(ModuleKillAura, "AutoBlocking", 
             }
 
             // Check if we cannot prioritize blocking
-            if (!running || !prioritizeBlocking || blockMode == BlockMode.FAKE || findBlockableHand() == null) {
+            // HypixelLag manages the blocking priority on its own (block -> unblock -> attack),
+            // so prioritizing blocking here would starve its state machine.
+            if (!running || !prioritizeBlocking || blockMode == BlockMode.FAKE ||
+                isHypixelLag || findBlockableHand() == null) {
                 return false
             }
 

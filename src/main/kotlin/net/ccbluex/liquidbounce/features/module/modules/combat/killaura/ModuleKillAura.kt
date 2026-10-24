@@ -285,11 +285,18 @@ object ModuleKillAura : ClientModule("KillAura", ModuleCategories.COMBAT) {
                     return@prepareForAttack false
                 }
 
+                // HypixelLag runs its own block -> unblock -> attack cycle and decides
+                // on its own whether the attack may happen on this tick.
+                if (!KillAuraAutoBlock.prepareHypixelLagAttack()) {
+                    return@prepareForAttack false
+                }
+
                 // Attack enemy
                 attackEntity(target, SwingMode.DO_NOT_HIDE, keepSprint && !shouldBlockSprinting)
                 range.update()
                 KillAuraNotifyWhenFail.failedHitsIncrement = 0
                 KillAuraAutoBlock.hasBlockedSinceAttack = false
+                KillAuraAutoBlock.completeHypixelLagAttack()
 
                 GenericDebugRecorder.recordDebugInfo(ModuleKillAura, "attackEntity", JsonObject().apply {
                     add("player", GenericDebugRecorder.debugObject(player))
